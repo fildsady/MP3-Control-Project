@@ -1,148 +1,151 @@
 /*
  * FreeRTOS V202111.00
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2020 Amazon.com
  *
- * การอนุญาตนี้มอบให้ฟรี โดยไม่มีค่าใช้จ่าย ให้กับบุคคลใด ๆ ที่ได้รับสำเนาของ
- * ซอฟต์แวร์นี้และเอกสารประกอบ (ที่เรียกว่า "ซอฟต์แวร์") เพื่อดำเนินการใน
- * ซอฟต์แวร์โดยไม่มีข้อจำกัด รวมถึงสิทธิ์ในการใช้, คัดลอก, แก้ไข, รวม, เผยแพร่,
- * แจกจ่าย, อนุญาตให้ใช้ และ/หรือขายสำเนาของซอฟต์แวร์ และอนุญาตให้บุคคลที่
- * ซอฟต์แวร์ถูกมอบให้ทำเช่นนั้น ภายใต้เงื่อนไขต่อไปนี้:
+ * ============================================================
+ * 🧩 ไฟล์นี้คือ FreeRTOSConfig.h
+ * ------------------------------------------------------------
+ * ไฟล์นี้ใช้สำหรับ "กำหนดค่าการทำงานของ FreeRTOS" ให้เหมาะกับฮาร์ดแวร์
+ * และความต้องการของแอปพลิเคชัน เช่น:
+ *  - จำนวน Task สูงสุด
+ *  - การใช้หน่วยความจำ
+ *  - การเปิด/ปิดฟีเจอร์ต่าง ๆ (Mutex, Timer, Hook Function ฯลฯ)
  *
- * คำประกาศลิขสิทธิ์ข้างต้นและคำอนุญาตนี้จะต้องรวมอยู่ในสำเนาทั้งหมดหรือส่วนที่
- * สำคัญของซอฟต์แวร์
+ * โปรแกรมหลัก (main.c) จะต้อง include ไฟล์นี้ผ่าน header ของ FreeRTOS
+ * เพื่อให้ kernel รู้ว่าควรตั้งค่าการทำงานอย่างไร
  *
- * ซอฟต์แวร์นี้จัดเตรียม "ตามที่เป็น" โดยไม่มีการรับประกันใด ๆ ไม่ว่าจะเป็น
- * การรับประกันโดยชัดแจ้งหรือโดยนัย รวมถึงแต่ไม่จำกัดเพียงการรับประกันความ
- * สามารถในการขาย, ความเหมาะสมสำหรับวัตถุประสงค์เฉพาะ และการไม่ละเมิด
- * ในกรณีใด ๆ ผู้เขียนหรือผู้ถือสิทธิลิขสิทธิ์จะไม่รับผิดชอบต่อการเรียกร้อง,
- * ความเสียหาย หรือความรับผิดอื่น ๆ ไม่ว่าจะเป็นในกรอบของสัญญา, ความเสียหาย
- * หรืออื่น ๆ ที่เกิดจาก, จาก หรือในความเชื่อมโยงกับซอฟต์แวร์หรือการใช้หรือ
- * การจัดการอื่น ๆ ในซอฟต์แวร์
- *
- * http://www.FreeRTOS.org
- * http://aws.amazon.com/freertos
- *
- * 1 แท็บ == 4 ช่องว่าง!
+ * 🔹 เหมาะสำหรับบอร์ด Raspberry Pi Pico / RP2040 / RP2350
+ * ============================================================
  */
 
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
 /*-----------------------------------------------------------
- * การกำหนดค่าที่เฉพาะเจาะจงกับแอปพลิเคชัน
- *
- * การกำหนดค่าต่าง ๆ เหล่านี้ควรได้รับการปรับให้เหมาะกับฮาร์ดแวร์และข้อกำหนด
- * ของแอปพลิเคชันของคุณ
- *
- * พารามิเตอร์เหล่านี้จะถูกอธิบายในส่วน 'CONFIGURATION' ของเอกสาร API ของ FreeRTOS
- * ที่มีอยู่บนเว็บไซต์ FreeRTOS.org
- *
- * ดูที่ http://www.freertos.org/a00110.html
+ * 🧠 การตั้งค่าพื้นฐานของระบบ (System Behavior)
  *----------------------------------------------------------*/
+#define configUSE_PREEMPTION                    1   // ใช้ระบบ Preemptive Multitasking (Task ที่มี priority สูงจะขัดจังหวะได้)
+#define configUSE_TICKLESS_IDLE                 0   // ปิดโหมดประหยัดพลังงานแบบ Tickless Idle
+#define configUSE_IDLE_HOOK                     0   // ปิดการใช้ฟังก์ชัน Idle Hook
+#define configUSE_TICK_HOOK                     0   // ปิดการใช้ Tick Hook
+#define configTICK_RATE_HZ                      ( ( TickType_t ) 1000 ) // ตั้งค่า tick rate = 1000Hz (1ms ต่อ tick)
+#define configMAX_PRIORITIES                    32  // จำนวนระดับความสำคัญของ task สูงสุด = 32
+#define configMINIMAL_STACK_SIZE                ( configSTACK_DEPTH_TYPE ) 256 // ขนาด stack เริ่มต้นของ task = 256 words
+#define configUSE_16_BIT_TICKS                  0   // ใช้ตัวนับ tick 32-bit (ตั้งเป็น 0 ถ้า CPU เป็น 32-bit)
+#define configIDLE_SHOULD_YIELD                 1   // ให้ task Idle ยอมสละ CPU ให้ task อื่นได้
 
-/* การจัดการกับการเปลี่ยนแปลง */
-#define configUSE_PREEMPTION                    1  // ใช้การเปลี่ยนแปลง (preemption)
-#define configUSE_TICKLESS_IDLE                 0  // ไม่ใช้โหมด Idle ที่ไม่ใช้ Tick
-#define configUSE_IDLE_HOOK                     0  // ไม่ใช้ Idle Hook
-#define configUSE_TICK_HOOK                     0  // ไม่ใช้ Tick Hook
-#define configTICK_RATE_HZ                      ( ( TickType_t ) 1000 ) // ความถี่ของ Tick = 1000 Hz
-#define configMAX_PRIORITIES                    32 // จำนวนความสำคัญสูงสุดของ Task = 32
-#define configMINIMAL_STACK_SIZE                ( configSTACK_DEPTH_TYPE ) 256 // ขนาดของ Stack ที่ขั้นต่ำ = 256
-#define configUSE_16_BIT_TICKS                  0  // ไม่ใช้ Tick ขนาด 16 บิต
+/*-----------------------------------------------------------
+ * 🔄 การซิงโครไนซ์และการสื่อสาร (Synchronization & IPC)
+ *----------------------------------------------------------*/
+#define configUSE_MUTEXES                       1   // เปิดใช้งาน Mutex
+#define configUSE_RECURSIVE_MUTEXES             1   // เปิดใช้งาน Recursive Mutex (Mutex ซ้อนกัน)
+#define configUSE_APPLICATION_TASK_TAG          0   // ปิดการใช้ Application Task Tag (ไม่ใช้ tag พิเศษใน task)
+#define configUSE_COUNTING_SEMAPHORES           1   // เปิดใช้ Counting Semaphore
+#define configQUEUE_REGISTRY_SIZE               8   // ขนาดของ Queue Registry (สำหรับ debug)
+#define configUSE_QUEUE_SETS                    1   // เปิดใช้ Queue Set (รวมหลาย queue เข้าด้วยกัน)
+#define configUSE_TIME_SLICING                  1   // เปิดใช้ time slicing (แบ่งเวลาระหว่าง task priority เดียวกัน)
+#define configUSE_NEWLIB_REENTRANT              0   // ปิดการใช้ Newlib thread-safe (ไม่จำเป็นใน Pico)
+#define configENABLE_BACKWARD_COMPATIBILITY     1   // เปิดโหมดเข้ากันได้กับเวอร์ชันเก่า
+#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5   // จำนวน pointer ต่อ task สำหรับเก็บข้อมูลเฉพาะ thread
 
-#define configIDLE_SHOULD_YIELD                 1  // Task Idle ควรยอมให้ Task อื่น
+/*-----------------------------------------------------------
+ * 🧮 การจัดการหน่วยความจำ (Memory Management)
+ *----------------------------------------------------------*/
+#define configSTACK_DEPTH_TYPE                  uint32_t  // กำหนดชนิดข้อมูลของความลึก stack
+#define configMESSAGE_BUFFER_LENGTH_TYPE        size_t    // ชนิดข้อมูลของ message buffer length
+#define configSUPPORT_STATIC_ALLOCATION         0         // ไม่รองรับการจัดสรรหน่วยความจำแบบ static
+#define configSUPPORT_DYNAMIC_ALLOCATION        1         // รองรับการจัดสรรหน่วยความจำแบบ dynamic
+#define configTOTAL_HEAP_SIZE                   (128*1024) // ขนาด heap ทั้งหมด 128 KB
+#define configAPPLICATION_ALLOCATED_HEAP        0         // ไม่ใช้ heap ที่จัดสรรโดยแอปพลิเคชันเอง
 
-/* การซิงโครไนเซชัน */
-#define configUSE_MUTEXES                       1  // ใช้ Mutexes
-#define configUSE_RECURSIVE_MUTEXES             1  // ใช้ Recursive Mutexes
-#define configUSE_APPLICATION_TASK_TAG          0  // ไม่ใช้ Application Task Tag
-#define configUSE_COUNTING_SEMAPHORES           1  // ใช้ Counting Semaphores
-#define configQUEUE_REGISTRY_SIZE               8  // ขนาดของ Queue Registry = 8
-#define configUSE_QUEUE_SETS                    1  // ใช้ Queue Sets
-#define configUSE_TIME_SLICING                  1  // ใช้ Time Slicing
-#define configUSE_NEWLIB_REENTRANT              0  // ไม่ใช้ Newlib Reentrant
-// todo: ต้องการสิ่งนี้สำหรับ lwip FreeRTOS sys_arch เพื่อการคอมไพล์
-#define configENABLE_BACKWARD_COMPATIBILITY     1  // เปิดใช้งานความเข้ากันได้ย้อนหลัง
-#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5  // จำนวน Thread Local Storage Pointers = 5
+/*-----------------------------------------------------------
+ * ⚠️ Hook Function (ฟังก์ชัน callback พิเศษของระบบ)
+ *----------------------------------------------------------*/
+#define configCHECK_FOR_STACK_OVERFLOW          0   // ปิดการตรวจ stack overflow (แนะนำให้เปิดในงานจริง)
+#define configUSE_MALLOC_FAILED_HOOK            0   // ปิด malloc failed hook (ใช้ถ้าต้องการจัดการ error)
+#define configUSE_DAEMON_TASK_STARTUP_HOOK      0   // ปิด daemon startup hook
 
-/* ระบบ */
-#define configSTACK_DEPTH_TYPE                  uint32_t  // ประเภทข้อมูลสำหรับความลึกของ Stack
-#define configMESSAGE_BUFFER_LENGTH_TYPE        size_t    // ประเภทข้อมูลสำหรับความยาวของ Message Buffer
+/*-----------------------------------------------------------
+ * 📊 สถิติและการ Debug (Run-time Statistics & Trace)
+ *----------------------------------------------------------*/
+#define configGENERATE_RUN_TIME_STATS           0   // ไม่เก็บสถิติการทำงาน
+#define configUSE_TRACE_FACILITY                1   // เปิดการใช้ trace facility (ช่วย debug task)
+#define configUSE_STATS_FORMATTING_FUNCTIONS    0   // ปิดฟังก์ชันแปลงสถิติเป็น string
 
-/* การจัดการหน่วยความจำ */
-#define configSUPPORT_STATIC_ALLOCATION         0  // ไม่สนับสนุนการจัดสรรหน่วยความจำแบบ Static
-#define configSUPPORT_DYNAMIC_ALLOCATION        1  // สนับสนุนการจัดสรรหน่วยความจำแบบ Dynamic
-#define configTOTAL_HEAP_SIZE                   (128*1024) // ขนาดของ Heap = 128 KB
-#define configAPPLICATION_ALLOCATED_HEAP        0  // ไม่ใช้ Heap ที่จัดสรรโดยแอปพลิเคชัน
+/*-----------------------------------------------------------
+ * 🧩 Co-routine (Task แบบเบา)
+ *----------------------------------------------------------*/
+#define configUSE_CO_ROUTINES                   0   // ปิด co-routines
+#define configMAX_CO_ROUTINE_PRIORITIES         1   // ถ้าเปิด co-routine จะมี priority แค่ 1 ระดับ
 
-/* การจัดการ Hook */
-#define configCHECK_FOR_STACK_OVERFLOW          0  // ไม่ตรวจสอบ Stack Overflow
-#define configUSE_MALLOC_FAILED_HOOK            0  // ไม่ใช้ Malloc Failed Hook
-#define configUSE_DAEMON_TASK_STARTUP_HOOK      0  // ไม่ใช้ Daemon Task Startup Hook
+/*-----------------------------------------------------------
+ * ⏰ Software Timer Configuration
+ *----------------------------------------------------------*/
+#define configUSE_TIMERS                        1   // เปิดใช้งาน Software Timer
+#define configTIMER_TASK_PRIORITY               ( configMAX_PRIORITIES - 1 ) // Timer task มี priority สูงสุด - 1
+#define configTIMER_QUEUE_LENGTH                10  // Queue ของ timer มีได้ 10 รายการ
+#define configTIMER_TASK_STACK_DEPTH            1024 // ขนาด stack ของ timer task = 1024 words
 
-/* การรวบรวมสถิติการทำงานและ Task */
-#define configGENERATE_RUN_TIME_STATS           0  // ไม่สร้างสถิติการทำงาน
-#define configUSE_TRACE_FACILITY                1  // ใช้ Trace Facility
-#define configUSE_STATS_FORMATTING_FUNCTIONS    0  // ไม่ใช้ฟังก์ชันการจัดรูปแบบสถิติ
-
-/* การใช้ Co-routine */
-#define configUSE_CO_ROUTINES                   0  // ไม่ใช้ Co-routines
-#define configMAX_CO_ROUTINE_PRIORITIES         1  // จำนวนความสำคัญสูงสุดของ Co-routines = 1
-
-/* การใช้ Software Timer */
-#define configUSE_TIMERS                        1  // ใช้ Software Timers
-#define configTIMER_TASK_PRIORITY               ( configMAX_PRIORITIES - 1 ) // ความสำคัญของ Timer Task
-#define configTIMER_QUEUE_LENGTH                10 // ขนาดของ Timer Queue = 10
-#define configTIMER_TASK_STACK_DEPTH            1024 // ขนาดของ Stack สำหรับ Timer Task = 1024
-
-/* การกำหนดพฤติกรรมการซ้อนการตอบสนองของ Interrupt */
+/*-----------------------------------------------------------
+ * ⚙️ การตั้งค่า Interrupt Priority (สำคัญกับ Cortex-M33)
+ *----------------------------------------------------------*/
 /*
-#define configKERNEL_INTERRUPT_PRIORITY         [ขึ้นอยู่กับโปรเซสเซอร์]
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY    [ขึ้นอยู่กับโปรเซสเซอร์และแอปพลิเคชัน]
-#define configMAX_API_CALL_INTERRUPT_PRIORITY   [ขึ้นอยู่กับโปรเซสเซอร์และแอปพลิเคชัน]
-*/
+ * บางค่า (เช่น configKERNEL_INTERRUPT_PRIORITY)
+ * จะขึ้นอยู่กับโปรเซสเซอร์และต้องดูจากเอกสารของ MCU
+ */
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY    16  // ระดับ interrupt สูงสุดที่สามารถใช้ FreeRTOS API ได้
 
-/* SMP port only */
-#define configNUMBER_OF_CORES                   2
-#define configRUN_MULTIPLE_PRIORITIES           1
+/*-----------------------------------------------------------
+ * 🧠 การตั้งค่าสำหรับระบบ SMP (Multi-core)
+ *----------------------------------------------------------*/
+#define configNUMBER_OF_CORES                   2   // RP2040/RP2350 มี 2 core
+#define configRUN_MULTIPLE_PRIORITIES           1   // รองรับหลาย priority พร้อมกัน
 #if configNUMBER_OF_CORES > 1
-#define configUSE_CORE_AFFINITY                 1
+    #define configUSE_CORE_AFFINITY             1   // เปิดใช้การผูก task กับ core เฉพาะ (Affinity)
 #endif
-#define configUSE_PASSIVE_IDLE_HOOK             0
+#define configUSE_PASSIVE_IDLE_HOOK             0   // ปิด Passive Idle Hook
 
-/* RP2040 specific */
-#define configSUPPORT_PICO_SYNC_INTEROP         1
-#define configSUPPORT_PICO_TIME_INTEROP         1
+/*-----------------------------------------------------------
+ * 🪶 การตั้งค่าพิเศษของ RP2040/RP2350
+ *----------------------------------------------------------*/
+#define configSUPPORT_PICO_SYNC_INTEROP         1   // รองรับ sync API ของ Pico SDK
+#define configSUPPORT_PICO_TIME_INTEROP         1   // รองรับ time API ของ Pico SDK
 
-/* RP2350 grows some features */
-#define configENABLE_FPU                        1
-#define configENABLE_MPU                        0
-#define configENABLE_TRUSTZONE                  0
-#define configRUN_FREERTOS_SECURE_ONLY          1
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY    16
+#define configENABLE_FPU                        1   // เปิดการใช้ FPU (Floating Point Unit)
+#define configENABLE_MPU                        0   // ปิด MPU (Memory Protection Unit)
+#define configENABLE_TRUSTZONE                  0   // ปิด TrustZone (ไม่มีใน Pico)
+#define configRUN_FREERTOS_SECURE_ONLY          1   // รันเฉพาะ secure state (ไม่ใช้ TrustZone)
 
-#include <assert.h>
-/* กำหนดเพื่อจับข้อผิดพลาดระหว่างการพัฒนา */
-#define configASSERT(x)                         assert(x)
+#include <assert.h>  // ใช้สำหรับตรวจสอบเงื่อนไขตอนพัฒนา
 
-/* กำหนดให้ฟังก์ชัน API ที่ต้องการรวมเข้าไปในโปรแกรม, หรือกำหนดเป็น 0 เพื่อไม่รวมฟังก์ชัน API */
-#define INCLUDE_vTaskPrioritySet                1
-#define INCLUDE_uxTaskPriorityGet               1
-#define INCLUDE_vTaskDelete                     1
-#define INCLUDE_vTaskSuspend                    1
-#define INCLUDE_vTaskDelayUntil                 1
-#define INCLUDE_vTaskDelay                      1
-#define INCLUDE_xTaskGetSchedulerState          1
-#define INCLUDE_xTaskGetCurrentTaskHandle       1
-#define INCLUDE_uxTaskGetStackHighWaterMark     1
-#define INCLUDE_xTaskGetIdleTaskHandle          1
-#define INCLUDE_eTaskGetState                   1
-#define INCLUDE_xTimerPendFunctionCall          1
-#define INCLUDE_xTaskAbortDelay                 1
-#define INCLUDE_xTaskGetHandle                  1
-#define INCLUDE_xTaskResumeFromISR              1
-#define INCLUDE_xQueueGetMutexHolder            1
+/*-----------------------------------------------------------
+ * 🧩 การตรวจสอบความถูกต้อง (Assertion)
+ *----------------------------------------------------------*/
+#define configASSERT(x)                         assert(x)  // ถ้า x เป็น false → หยุดโปรแกรมตอน debug
 
-/* รวมไฟล์หัวข้อที่กำหนด trace macro ได้ที่นี่ */
+/*-----------------------------------------------------------
+ * 🧰 กำหนดว่าฟังก์ชัน API ใดของ FreeRTOS จะถูก include เข้ามา
+ * (ตั้ง 1 = เปิดใช้งาน, 0 = ปิด)
+ *----------------------------------------------------------*/
+#define INCLUDE_vTaskPrioritySet                1   // ฟังก์ชันเปลี่ยน priority ของ task
+#define INCLUDE_uxTaskPriorityGet               1   // ฟังก์ชันอ่าน priority ของ task
+#define INCLUDE_vTaskDelete                     1   // ฟังก์ชันลบ task
+#define INCLUDE_vTaskSuspend                    1   // ฟังก์ชันหยุดชั่วคราว task
+#define INCLUDE_vTaskDelayUntil                 1   // ฟังก์ชันหน่วงเวลาแบบ absolute
+#define INCLUDE_vTaskDelay                      1   // ฟังก์ชันหน่วงเวลาแบบ relative
+#define INCLUDE_xTaskGetSchedulerState          1   // ฟังก์ชันดูสถานะ scheduler
+#define INCLUDE_xTaskGetCurrentTaskHandle       1   // ฟังก์ชันดึง handle ของ task ปัจจุบัน
+#define INCLUDE_uxTaskGetStackHighWaterMark     1   // ฟังก์ชันตรวจ stack usage
+#define INCLUDE_xTaskGetIdleTaskHandle          1   // ฟังก์ชันดึง handle ของ idle task
+#define INCLUDE_eTaskGetState                   1   // ฟังก์ชันดูสถานะของ task
+#define INCLUDE_xTimerPendFunctionCall          1   // ฟังก์ชันรัน callback ผ่าน timer service
+#define INCLUDE_xTaskAbortDelay                 1   // ฟังก์ชันยกเลิก delay ของ task
+#define INCLUDE_xTaskGetHandle                  1   // ฟังก์ชันดึง handle ของ task จากชื่อ
+#define INCLUDE_xTaskResumeFromISR              1   // ฟังก์ชัน resume task จาก ISR
+#define INCLUDE_xQueueGetMutexHolder            1   // ฟังก์ชันตรวจสอบว่าใครถือ mutex อยู่
+
+/*-----------------------------------------------------------
+ * (Option) รวม header สำหรับ trace macro เพิ่มเติมได้ที่นี่
+ *----------------------------------------------------------*/
 
 #endif /* FREERTOS_CONFIG_H */
