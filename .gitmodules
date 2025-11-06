@@ -2,3 +2,4 @@
 	path = lib/FreeRTOS-Kernel
 	url = https://github.com/raspberrypi/FreeRTOS-Kernel.git
 
+#  git submodule add -f https://github.com/raspberrypi/FreeRTOS-Kernel.git lib/FreeRTOS-Kernel
