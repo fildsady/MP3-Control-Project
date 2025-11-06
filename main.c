@@ -6,17 +6,22 @@
 
 #define LED_PIN 2
 
-void led_task()
-{   
+void task_1(void *pvParameters)
+{
+    while(1)
+    {
+        printf("Task 1 is running\n");
+        for(int i=0;i<20000000;i++);
+    } 
+}
 
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
-    while (true) {
-        gpio_put(LED_PIN, 1);
-        vTaskDelay(50);
-        gpio_put(LED_PIN, 0);
-        vTaskDelay(450);
-    }
+void task_2(void *pvParameters)
+{
+    while(1)
+    {
+        printf("Task 2 is running\n");
+        for(int i=0;i<20000000;i++);
+    } 
 }
 
 
@@ -24,7 +29,8 @@ int main()
 {
     stdio_init_all();
 
-    xTaskCreate(led_task, "LED_Task", 256, NULL, 1, NULL);
+    xTaskCreate(task_1, "LED_Task", 256, NULL, 1, NULL);
+    xTaskCreate(task_2, "LED_Task", 256, NULL, 1, NULL);
     vTaskStartScheduler();
 
     while(1){};
