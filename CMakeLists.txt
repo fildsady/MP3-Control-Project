@@ -41,7 +41,8 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(RP2350_RTOS_Project_Assambly RP2350_RTOS_Project_Assambly.c )
+add_executable(RP2350_RTOS_Project_Assambly main.c )
+
 
 pico_set_program_name(RP2350_RTOS_Project_Assambly "RP2350_RTOS_Project_Assambly")
 pico_set_program_version(RP2350_RTOS_Project_Assambly "0.1")
@@ -61,6 +62,7 @@ target_link_libraries(RP2350_RTOS_Project_Assambly
 # Add the standard include files to the build
 target_include_directories(RP2350_RTOS_Project_Assambly PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
 pico_add_extra_outputs(RP2350_RTOS_Project_Assambly)
