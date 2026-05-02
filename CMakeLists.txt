@@ -12,18 +12,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # (note this can come from environment, CMake cache etc)
 
 # == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-# ส่วนนี้ถูกสร้างโดยอัตโนมัติ (Scaffolding) เพื่อรองรับส่วนขยาย (Extension) ของ VS Code
 if(WIN32)
- set(USERHOME $ENV{USERPROFILE})
+    set(USERHOME $ENV{USERPROFILE})
 else()
- set(USERHOME $ENV{HOME})
+    set(USERHOME $ENV{HOME})
 endif()
- set(sdkVersion 2.2.0)
- set(toolchainVersion 14_2_Rel1)
- set(picotoolVersion 2.2.0-a4)
- set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+set(sdkVersion 2.2.0)
+set(toolchainVersion 15_2_Rel1)
+set(picotoolVersion 2.2.0-a4)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
- include(${picoVscode})
+    include(${picoVscode})
 endif()
 # ====================================================================================
 
