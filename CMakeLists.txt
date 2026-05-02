@@ -12,18 +12,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # (note this can come from environment, CMake cache etc)
 
 # == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-# ส่วนนี้ถูกสร้างโดยอัตโนมัติ (Scaffolding) เพื่อรองรับส่วนขยาย (Extension) ของ VS Code
 if(WIN32)
- set(USERHOME $ENV{USERPROFILE})
+    set(USERHOME $ENV{USERPROFILE})
 else()
- set(USERHOME $ENV{HOME})
+    set(USERHOME $ENV{HOME})
 endif()
- set(sdkVersion 2.2.0)
- set(toolchainVersion 14_2_Rel1)
- set(picotoolVersion 2.2.0-a4)
- set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+set(sdkVersion 2.2.0)
+set(toolchainVersion 15_2_Rel1)
+set(picotoolVersion 2.2.0-a4)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
- include(${picoVscode})
+    include(${picoVscode})
 endif()
 # ====================================================================================
 
@@ -91,5 +90,10 @@ target_include_directories(RP2350_RTOS_Project_Assambly PRIVATE
 # - ${CMAKE_CURRENT_LIST_DIR}: พาธของไฟล์ CMakeLists.txt ปัจจุบัน
 # - ${CMAKE_CURRENT_SOURCE_DIR}/inc: พาธไปยังโฟลเดอร์ 'inc' (หากมี Header File ที่กำหนดเอง)
 
+# แสดง memory usage หลัง build
+target_link_options(${PROJECT_NAME} PRIVATE
+    -Wl,--print-memory-usage
+    -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.map
+)
 pico_add_extra_outputs(RP2350_RTOS_Project_Assambly)
 # สั่งให้ Pico SDK สร้างไฟล์เอาต์พุตเพิ่มเติม (เช่น .uf2 สำหรับอัปโหลด)
