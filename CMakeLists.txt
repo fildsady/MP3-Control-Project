@@ -52,8 +52,26 @@ project(RP2350_RTOS_Project_Assambly C CXX ASM)
 pico_sdk_init()
 # เรียกใช้ฟังก์ชันจาก Pico SDK เพื่อเริ่มต้นการตั้งค่าสภาพแวดล้อมที่จำเป็นทั้งหมด
 
+# โหลดไลบรารี CMSIS-DSP จาก GitHub ของ ARM แบบอัตโนมัติ
+include(FetchContent)
+FetchContent_Declare(
+    CMSISDSP
+    GIT_REPOSITORY https://github.com/ARM-software/CMSIS-DSP.git
+    GIT_TAG        v1.15.0
+)
+FetchContent_MakeAvailable(CMSISDSP)
+
+# ผูกไลบรารี cmsis_core ของ Pico SDK เข้ากับ CMSISDSP เพื่อให้หาไฟล์ cmsis_compiler.h เจอ
+target_link_libraries(CMSISDSP PUBLIC cmsis_core)
+
+# เลี่ยงบั๊กของคอมไพเลอร์ GCC 14 (Internal Compiler Error) โดยลด Optimize ลง
+target_compile_options(CMSISDSP PRIVATE -Os -fno-if-conversion)
+
 # Add executable. Default name is the project name, version 0.1
-add_executable(RP2350_RTOS_Project_Assambly src/main.c )
+add_executable(RP2350_RTOS_Project_Assambly 
+    src/main.c 
+    # src/lcd.c  <-- ลบ # ออก แล้วเปลี่ยนชื่อไฟล์ให้ตรงกับไฟล์ไลบรารี LCD ของคุณครับ!
+)
 # สร้าง Target ที่เป็นไฟล์ปฏิบัติการ (Executable) ชื่อเดียวกับชื่อโปรเจกต์
 # โดยใช้ไฟล์ต้นฉบับคือ main.c ในการคอมไพล์
 
@@ -74,6 +92,9 @@ target_link_libraries(RP2350_RTOS_Project_Assambly
         pico_multicore
         hardware_adc
         FreeRTOS-Kernel-Heap4
+        m
+        CMSISDSP
+        cmsis_core
  )
 # เชื่อมโยง (Link) Libraries ที่ Target ต้องใช้ในการคอมไพล์และรัน:
 # - pico_stdlib: Libraries พื้นฐานของ Pico
@@ -85,6 +106,7 @@ target_link_libraries(RP2350_RTOS_Project_Assambly
 target_include_directories(RP2350_RTOS_Project_Assambly PRIVATE
  ${CMAKE_CURRENT_LIST_DIR}
  ${CMAKE_CURRENT_SOURCE_DIR}/inc 
+ ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 # กำหนดพาธของ Header File (Include Directories) ให้กับ Target
 # - ${CMAKE_CURRENT_LIST_DIR}: พาธของไฟล์ CMakeLists.txt ปัจจุบัน

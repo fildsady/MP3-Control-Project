@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "arm_math.h"
 #include "pico/stdlib.h"
 
 #include "FreeRTOS.h"
@@ -81,32 +84,60 @@ void task_blink_builtin(void *pvParameters)
         vTaskDelay(100 / portTICK_PERIOD_MS);
     } 
 }
- 
+
+// ---------------------------------------------------------
+// Task DSP: ประมวลผลสัญญาณดิจิทัล (Digital Signal Processing)
+// ทำหน้าที่: สร้างสัญญาณ Sine Wave จำลอง, ใส่ Noise, และทำ Low-Pass Filter
+// ---------------------------------------------------------
+#define FILTER_TAPS 5
+float filter_buffer[FILTER_TAPS] = {0};
+int filter_index = 0;
+
+void dsp_task(void *pvParameters)
+{
+    float t = 0.0f;
+    
+    while(1)
+    {
+        // 1. จำลองการอ่านค่าจากเซนเซอร์ (Sine wave 1Hz + สัญญาณรบกวนแบบสุ่ม)
+        float true_signal = sinf(t) * 10.0f;
+        float noise = ((float)(rand() % 100) / 100.0f - 0.5f) * 4.0f; // Noise แกว่งช่วง -2.0 ถึง +2.0
+        float raw_value = true_signal + noise;
+
+        // 2. กระบวนการ DSP: นำค่าเข้า Moving Average Filter (FIR Filter เบื้องต้น)
+        filter_buffer[filter_index] = raw_value;
+        filter_index = (filter_index + 1) % FILTER_TAPS;
+
+        float filtered_value = 0.0f;
+        // ใช้ฟังก์ชันสำเร็จรูปจากไลบรารี CMSIS-DSP
+        arm_mean_f32(filter_buffer, FILTER_TAPS, &filtered_value);
+
+        // 3. แสดงผลลัพธ์ผ่าน UART/USB (ใช้ Serial Plotter ดูเทรนด์กราฟได้)
+        printf("Raw: %6.2f | Filtered: %6.2f\n", raw_value, filtered_value);
+
+        t += 0.1f; // เพิ่มเวลาจำลอง
+
+        // หน่วงเวลาการสุ่มข้อมูลที่ 10Hz (100 ms)
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    } 
+}
+
 // ---------------------------------------------------------
 // ฟังก์ชัน main: จุดเริ่มต้นของโปรแกรม
 // ทำหน้าที่ตั้งค่าเริ่มต้นของระบบ, สร้าง Task และเริ่มการทำงานของ OS
 // ---------------------------------------------------------
 int main()
 {
-    // เริ่มต้นระบบ Standard I/O (เช่น การใช้งาน UART สำหรับคำสั่ง printf)
+
     stdio_init_all();
 
-    // สร้าง Task จำนวน 3 Task ลงในหน่วยความจำของ FreeRTOS โดยกำหนดพารามิเตอร์ดังนี้:
-    // 1. ฟังก์ชันเป้าหมายของ Task
-    // 2. ชื่อของ Task (สำหรับใช้ในการ Debug)
-    // 3. ขนาดของ Stack ที่จองให้ Task นี้ (หน่วยเป็น words ไม่ใช่ bytes)
-    // 4. พารามิเตอร์ที่จะส่งไปให้ Task (ในที่นี้ไม่มี จึงเป็น NULL)
-    // 5. ระดับความสำคัญของ Task (Priority) ยิ่งค่าน้อย ความสำคัญยิ่งต่ำ (ตั้งไว้เท่ากันที่ 1)
-    // 6. ตัวแปรเก็บ Handle ของ Task (ไม่ได้ใช้งาน จึงเป็น NULL)
     xTaskCreate(task_1, "LED_Task_1", 256, NULL, 1, NULL);
     xTaskCreate(task_2, "LED_Task_2", 256, NULL, 1, NULL);
     xTaskCreate(task_blink_builtin, "Blink_Builtin_Task", 256, NULL, 1, NULL);
-    
-    // สั่งให้ตัวจัดการการสลับ Task (Scheduler) ของ FreeRTOS เริ่มทำงาน
-    // หลังจากบรรทัดนี้ไป CPU จะถูกควบคุมโดย FreeRTOS และเริ่มสลับการทำงานไปมาระหว่าง Task 1, 2 และ Builtin
+
+    xTaskCreate(dsp_task, "DSP_Task", 1024, NULL, 2, NULL);
+
     vTaskStartScheduler();
 
-    // ลูปทำงานเผื่อไว้ในกรณีที่ Scheduler ทำงานผิดพลาดจนหลุดจากการทำงานปกติ
-    // ถ้าโปรแกรมทำงานถูกต้อง บรรทัดนี้จะไม่มีวันถูกเรียกถึง
     while(1){};
 }
