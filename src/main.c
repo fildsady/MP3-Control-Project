@@ -6,10 +6,14 @@
 
 // นิยาม Pin ที่ใช้งาน
 #define PIN_0 0
+#define DEFAUL_LED_PIN 25
+
 
 int main()
 {
     stdio_init_all();
+    gpio_init(DEFAUL_LED_PIN);
+    gpio_set_dir(DEFAUL_LED_PIN, GPIO_OUT);
 
     PIO pio = pio0; // เลือกใช้ PIO block 0
     uint sm = 0;    // เลือกใช้ State Machine 0
@@ -21,11 +25,17 @@ int main()
     // คำนวณความเร็ว: 100ms
     // สมมติ Clock RP2350 = 150MHz. เราใช้คำสั่งถ่วงเวลาใน PIO 32 cycles ต่อหนึ่ง Loop เล็ก
     // เราจะส่งค่าเข้าไปใน FIFO เพื่อกำหนดระยะเวลา
-    uint32_t delay_val = 500000; // ตัวเลขตัวอย่างเพื่อให้ได้ประมาณ 100ms (ปรับตามความต้องการ)
+    uint32_t delay_val = 1500000; // ตัวเลขตัวอย่างเพื่อให้ได้ประมาณ 100ms (ปรับตามความต้องการ)
     pio_sm_put_blocking(pio, sm, delay_val);
+
 
     while (1) {
         // CPU ว่าง 100% เพราะ PIO จัดการเรื่องเวลาและการ Toggle ไฟให้เอง
+        gpio_put(DEFAUL_LED_PIN, 1);
+        sleep_ms(100);
+        gpio_put(DEFAUL_LED_PIN, 0);
+        sleep_ms(100);
+
         tight_loop_contents();
     }
 }
