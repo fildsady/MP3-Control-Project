@@ -20,5 +20,7 @@ int main()
         sleep_ms(500);
         gpio_put(PICO_DEFAULT_LED_PIN,0);
         sleep_ms(500);  
+
+        printf("Hello World\n");
     }   
 }
