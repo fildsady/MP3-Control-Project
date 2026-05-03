@@ -14,80 +14,80 @@
 #endif
 
 // ---------------------------------------------------------
-// Task 1: ควบคุมไฟ LED ดวงที่ 1 (เชื่อมต่อที่ขา LED_PIN1)
-// ทำหน้าที่กระพริบ LED โดยสว่าง 500 ms และ ดับ 500 ms
+// Task 1: Control LED 1 (Connected to LED_PIN1)
+// Blinks the LED: ON for 500 ms, OFF for 500 ms
 // ---------------------------------------------------------
 void task_1(void *pvParameters)
 {
-    // กำหนดค่าเริ่มต้นให้กับขา GPIO และตั้งค่าให้เป็น Output (ส่งสัญญาณออก)
+    // Initialize GPIO pin and set as Output
     gpio_init(LED_PIN1);          
     gpio_set_dir(LED_PIN1, GPIO_OUT);
 
-    // ลูปการทำงานหลักของ Task (ทำงานวนซ้ำไม่รู้จบ)
+    // Main task loop (runs indefinitely)
     while(1)
     {
-        // สั่งให้ LED ติด (ส่งค่าสถานะ High หรือ 1)
+        // Turn LED ON (Set High or 1)
         gpio_put(LED_PIN1, 1);  
-        // หน่วงเวลา 500 มิลลิวินาที (แปลงเวลาเป็นหน่วย Tick ของระบบปฏิบัติการ)
+        // Delay for 500 ms (Convert time to OS Ticks)
         vTaskDelay(500 / portTICK_PERIOD_MS); 
-        // สั่งให้ LED ดับ (ส่งค่าสถานะ Low หรือ 0)
+        // Turn LED OFF (Set Low or 0)
         gpio_put(LED_PIN1, 0);  
-        // หน่วงเวลา 500 มิลลิวินาที ก่อนวนลูปใหม่
+        // Delay for 500 ms before next iteration
         vTaskDelay(500 / portTICK_PERIOD_MS);
     } 
 }
 
 // ---------------------------------------------------------
-// Task 2: ควบคุมไฟ LED ดวงที่ 2 (เชื่อมต่อที่ขา LED_PIN2)
-// ทำหน้าที่กระพริบ LED โดยสว่าง 200 ms และ ดับ 250 ms
+// Task 2: Control LED 2 (Connected to LED_PIN2)
+// Blinks the LED: ON for 200 ms, OFF for 250 ms
 // ---------------------------------------------------------
 void task_2(void *pvParameters)
 {
-     // กำหนดค่าเริ่มต้นให้กับขา GPIO และตั้งค่าให้เป็น Output
+     // Initialize GPIO pin and set as Output
      gpio_init(LED_PIN2);          
      gpio_set_dir(LED_PIN2, GPIO_OUT);
 
-    // ลูปการทำงานหลักของ Task
+    // Main task loop
     while(1)
     {
-        // สั่งให้ LED ติด
+        // Turn LED ON
         gpio_put(LED_PIN2, 1);  
-        // หน่วงเวลา 200 มิลลิวินาที
+        // Delay for 200 ms
         vTaskDelay(200 / portTICK_PERIOD_MS); 
-        // สั่งให้ LED ดับ
+        // Turn LED OFF
         gpio_put(LED_PIN2, 0);  
-        // หน่วงเวลา 250 มิลลิวินาที ก่อนวนลูปใหม่
+        // Delay for 250 ms before next iteration
         vTaskDelay(250 / portTICK_PERIOD_MS);
     } 
 }
 
 // ---------------------------------------------------------
-// Task Blink Builtin: ควบคุมไฟ LED ที่ติดมากับบอร์ด (Built-in LED)
-// ทำหน้าที่กระพริบ LED โดยสว่าง 100 ms และ ดับ 100 ms
+// Task Blink Builtin: Control the built-in LED
+// Blinks the LED: ON for 100 ms, OFF for 100 ms
 // ---------------------------------------------------------
 void task_blink_builtin(void *pvParameters)
 {
-    // กำหนดค่าเริ่มต้นให้กับขา GPIO ของ Built-in LED และตั้งค่าให้เป็น Output
+    // Initialize Built-in LED GPIO pin and set as Output
     gpio_init(PICO_DEFAULT_LED_PIN);          
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
 
-    // ลูปการทำงานหลักของ Task
+    // Main task loop
     while(1)
     {
-        // สั่งให้ LED ติด
+        // Turn LED ON
         gpio_put(PICO_DEFAULT_LED_PIN, 1);  
-        // หน่วงเวลา 100 มิลลิวินาที
+        // Delay for 100 ms
         vTaskDelay(100 / portTICK_PERIOD_MS); 
-        // สั่งให้ LED ดับ
+        // Turn LED OFF
         gpio_put(PICO_DEFAULT_LED_PIN, 0);  
-        // หน่วงเวลา 100 มิลลิวินาที ก่อนวนลูปใหม่
+        // Delay for 100 ms before next iteration
         vTaskDelay(100 / portTICK_PERIOD_MS);
     } 
 }
 
 // ---------------------------------------------------------
-// Task DSP: ประมวลผลสัญญาณดิจิทัล (Digital Signal Processing)
-// ทำหน้าที่: สร้างสัญญาณ Sine Wave จำลอง, ใส่ Noise, และทำ Low-Pass Filter
+// Task DSP: Digital Signal Processing
+// Generates a simulated Sine Wave, adds Noise, and applies a Low-Pass Filter
 // ---------------------------------------------------------
 #define FILTER_TAPS 5
 float filter_buffer[FILTER_TAPS] = {0};
@@ -99,32 +99,32 @@ void dsp_task(void *pvParameters)
     
     while(1)
     {
-        // 1. จำลองการอ่านค่าจากเซนเซอร์ (Sine wave 1Hz + สัญญาณรบกวนแบบสุ่ม)
+        // 1. Simulate reading sensor data (Sine wave 1Hz + random noise)
         float true_signal = sinf(t) * 10.0f;
-        float noise = ((float)(rand() % 100) / 100.0f - 0.5f) * 4.0f; // Noise แกว่งช่วง -2.0 ถึง +2.0
+        float noise = ((float)(rand() % 100) / 100.0f - 0.5f) * 4.0f; // Noise swings between -2.0 and +2.0
         float raw_value = true_signal + noise;
 
-        // 2. กระบวนการ DSP: นำค่าเข้า Moving Average Filter (FIR Filter เบื้องต้น)
+        // 2. DSP Process: Apply Moving Average Filter (Basic FIR Filter)
         filter_buffer[filter_index] = raw_value;
         filter_index = (filter_index + 1) % FILTER_TAPS;
 
         float filtered_value = 0.0f;
-        // ใช้ฟังก์ชันสำเร็จรูปจากไลบรารี CMSIS-DSP
+        // Use a built-in function from the CMSIS-DSP library
         arm_mean_f32(filter_buffer, FILTER_TAPS, &filtered_value);
 
-        // 3. แสดงผลลัพธ์ผ่าน UART/USB (ใช้ Serial Plotter ดูเทรนด์กราฟได้)
+        // 3. Output results via UART/USB (can be viewed using a Serial Plotter)
         printf("Raw: %6.2f | Filtered: %6.2f\n", raw_value, filtered_value);
 
-        t += 0.1f; // เพิ่มเวลาจำลอง
+        t += 0.1f; // Increment simulation time
 
-        // หน่วงเวลาการสุ่มข้อมูลที่ 10Hz (100 ms)
+        // Delay to sample data at 10Hz (100 ms)
         vTaskDelay(100 / portTICK_PERIOD_MS);
     } 
 }
 
 // ---------------------------------------------------------
-// ฟังก์ชัน main: จุดเริ่มต้นของโปรแกรม
-// ทำหน้าที่ตั้งค่าเริ่มต้นของระบบ, สร้าง Task และเริ่มการทำงานของ OS
+// main function: Entry point of the program
+// Initializes the system, creates tasks, and starts the OS scheduler
 // ---------------------------------------------------------
 int main()
 {
