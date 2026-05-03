@@ -12,7 +12,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # (note this can come from environment, CMake cache etc)
 
 # == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-# ส่วนนี้ถูกสร้างโดยอัตโนมัติ (Scaffolding) เพื่อรองรับส่วนขยาย (Extension) ของ VS Code
 if(WIN32)
     set(USERHOME $ENV{USERPROFILE})
 else()
