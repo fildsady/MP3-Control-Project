@@ -26,6 +26,6 @@ int main()
 
     while (1) {
         // CPU ว่าง 100% เพราะ PIO จัดการเรื่องเวลาและการ Toggle ไฟให้เอง
-        tight_loop_contents(); 
+        tight_loop_contents();
     }
 }
