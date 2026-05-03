@@ -74,6 +74,10 @@ add_executable(RP2350_RTOS_Project_Assambly
     src/main.c 
     # src/lcd.c  <-- ลบ # ออก แล้วเปลี่ยนชื่อไฟล์ให้ตรงกับไฟล์ไลบรารี LCD ของคุณครับ!
 )
+
+# เพิ่มคำสั่งเพื่อสร้าง header จากไฟล์ PIO
+pico_generate_pio_header(RP2350_RTOS_Project_Assambly ${CMAKE_CURRENT_SOURCE_DIR}/src/blink.pio)
+
 # สร้าง Target ที่เป็นไฟล์ปฏิบัติการ (Executable) ชื่อเดียวกับชื่อโปรเจกต์
 # โดยใช้ไฟล์ต้นฉบับคือ main.c ในการคอมไพล์
 
@@ -92,6 +96,7 @@ pico_enable_stdio_usb(RP2350_RTOS_Project_Assambly 1)
 target_link_libraries(RP2350_RTOS_Project_Assambly
         pico_stdlib
         pico_multicore
+        hardware_pio
         hardware_adc
         FreeRTOS-Kernel-Heap4
         m

@@ -1,0 +1,27 @@
+.program pio_blink
+
+    pull block          ; รอรับค่าความเร็วจาก CPU (ถ้าต้องการเปลี่ยนเวลาแบบ Dynamic)
+    out y, 32           ; เก็บค่าหน่วงเวลาไว้ใน Register Y
+
+.wrap_target
+    set pins, 1         ; เปิดไฟ (GPIO High)
+    mov x, y            ; โหลดค่าจาก Y เข้า X
+delay_high:
+    jmp x-- delay_high [31] ; วนลูปหน่วงเวลา (ลดค่า X ทีละ 1 และรอ 31 cycles)
+    
+    set pins, 0         ; ปิดไฟ (GPIO Low)
+    mov x, y            ; โหลดค่าจาก Y เข้า X
+delay_low:
+    jmp x-- delay_low  [31] ; วนลูปหน่วงเวลา
+.wrap
+
+% c-sdk {
+static inline void pio_blink_program_init(PIO pio, uint sm, uint offset, uint pin) {
+    pio_sm_config c = pio_blink_program_get_default_config(offset);
+    sm_config_set_set_pins(&c, pin, 1); // กำหนดให้ใช้คำสั่ง SET กับ Pin นี้
+    pio_gpio_init(pio, pin);           // ให้ PIO ควบคุม Pin นี้
+    pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true); // ตั้งเป็น Output
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}

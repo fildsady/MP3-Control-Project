@@ -1,69 +1,31 @@
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "pico/stdlib.h"
-#include "hardware/irq.h"
-#include "hardware/timer.h" // เพิ่มบรรทัดนี้
+#include "hardware/pio.h"
+#include "blink.pio.h" // Header ที่ถูกสร้างอัตโนมัติจากไฟล์ .pio
 
 // นิยาม Pin ที่ใช้งาน
 #define PIN_0 0
-#define PIN_1 1
-#define PIN_2 2
-//
-// เพิ่ม Function Prototypes (การประกาศฟังก์ชัน) ไว้ที่นี่
-bool timer_0_callback(struct repeating_timer *t);
-bool timer_1_callback(struct repeating_timer *t);
-bool timer_2_callback(struct repeating_timer *t);
 
 int main()
 {
     stdio_init_all();
 
-    // เริ่มต้นใช้งาน Pins 0, 1, 2
-    uint pins[] = {PIN_0, PIN_1, PIN_2};
-    for (int i = 0; i < 3; i++) {
-        gpio_init(pins[i]);
-        gpio_set_dir(pins[i], GPIO_OUT);
-    }
+    PIO pio = pio0; // เลือกใช้ PIO block 0
+    uint sm = 0;    // เลือกใช้ State Machine 0
+    uint offset = pio_add_program(pio, &pio_blink_program);
+    
+    // เริ่มต้น PIO ที่ PIN_0
+    pio_blink_program_init(pio, sm, offset, PIN_0);
 
-    struct repeating_timer timer0, timer1, timer2;
-
-    // สร้าง Timer 1: 100ms -> Pin 0 (ตรวจสอบผลลัพธ์ของ add_repeating_timer_ms)
-    if (add_repeating_timer_ms(-100, timer_0_callback, NULL, &timer0)) {
-        // ตั้ง Priority (ใช้ TIMER1_IRQ_0 ตามที่คุณแจ้งว่าคอมไพล์ผ่าน)
-        irq_set_priority(TIMER1_IRQ_0 + timer0.alarm_id, 0x40);
-    }
-
-    // สร้าง Timer 2: 200ms -> Pin 1
-    if (add_repeating_timer_ms(-200, timer_1_callback, NULL, &timer1)) {
-        irq_set_priority(TIMER1_IRQ_0 + timer1.alarm_id, 0x50);
-    }
-
-    // สร้าง Timer 3: 300ms -> Pin 2
-    if (add_repeating_timer_ms(-300, timer_2_callback, NULL, &timer2)) {
-        irq_set_priority(TIMER1_IRQ_0 + timer2.alarm_id, 0x60);
-    }
+    // คำนวณความเร็ว: 100ms
+    // สมมติ Clock RP2350 = 150MHz. เราใช้คำสั่งถ่วงเวลาใน PIO 32 cycles ต่อหนึ่ง Loop เล็ก
+    // เราจะส่งค่าเข้าไปใน FIFO เพื่อกำหนดระยะเวลา
+    uint32_t delay_val = 400000; // ตัวเลขตัวอย่างเพื่อให้ได้ประมาณ 100ms (ปรับตามความต้องการ)
+    pio_sm_put_blocking(pio, sm, delay_val);
 
     while (1) {
-        // ในนี้สามารถรันโค้ดอื่นๆ ได้โดยไม่กระทบกับการกระพริบของ LED
+        // CPU ว่าง 100% เพราะ PIO จัดการเรื่องเวลาและการ Toggle ไฟให้เอง
         tight_loop_contents(); 
     }
-}
-
-// Callback สำหรับ Pin 0 (100ms)
-bool timer_0_callback(struct repeating_timer *t) {
-    gpio_put(PIN_0, !gpio_get(PIN_0));
-    return true;
-}
-
-// Callback สำหรับ Pin 1 (200ms)
-bool timer_1_callback(struct repeating_timer *t) {
-    gpio_put(PIN_1, !gpio_get(PIN_1));
-    return true;
-}
-
-// Callback สำหรับ Pin 2 (300ms)
-bool timer_2_callback(struct repeating_timer *t) {
-    gpio_put(PIN_2, !gpio_get(PIN_2));
-    return true;
 }
