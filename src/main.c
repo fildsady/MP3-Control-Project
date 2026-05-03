@@ -21,6 +21,6 @@ int main()
         gpio_put(PICO_DEFAULT_LED_PIN,0);
         sleep_ms(500);  
 
-        printf("Hello World\n");
+        printf("Hello World My RP2350\n");
     }   
 }
