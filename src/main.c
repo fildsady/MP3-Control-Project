@@ -5,7 +5,7 @@
 #include "blink.pio.h" // Header ที่ถูกสร้างอัตโนมัติจากไฟล์ .pio
 
 // นิยาม Pin ที่ใช้งาน
-#define PIN_0 0
+#define PIN_0 0 
 #define DEFAUL_LED_PIN 25
 
 
