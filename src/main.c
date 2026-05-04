@@ -32,9 +32,9 @@ int main()
     while (1) {
         // CPU ว่าง 100% เพราะ PIO จัดการเรื่องเวลาและการ Toggle ไฟให้เอง
         gpio_put(DEFAUL_LED_PIN, 1);
-        sleep_ms(100);
+        sleep_ms(300);
         gpio_put(DEFAUL_LED_PIN, 0);
-        sleep_ms(100); 
+        sleep_ms(300); 
 
         tight_loop_contents();
     }
