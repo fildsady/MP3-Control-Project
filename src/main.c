@@ -34,7 +34,7 @@ int main()
         gpio_put(DEFAUL_LED_PIN, 1);
         sleep_ms(100);
         gpio_put(DEFAUL_LED_PIN, 0);
-        sleep_ms(100);
+        sleep_ms(100); 
 
         tight_loop_contents();
     }
