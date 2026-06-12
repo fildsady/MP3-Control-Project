@@ -1,4 +1,4 @@
-# 📦 RP2350 RTOS Project Assembly
+# 📦 MP3 Control Project
 
 โปรเจกต์นี้เป็นพื้นที่สำหรับรวบรวมโค้ดและตัวอย่างการทำงานต่างๆ (Code Repository & Examples) เท่านั้น
 
@@ -56,7 +56,7 @@ git push -u origin <branch-name>
 ### 📁 โครงสร้างโปรเจกต์
 
 ```text
-RP2350_RTOS_Project_Assambly/
+MP3 Control Project/
 ├── build/                # โฟลเดอร์สำหรับไฟล์ที่ได้จากการ build (สร้างโดย CMake)
 ├── inc/                  # โฟลเดอร์สำหรับเก็บ Header files (.h) ของโปรเจกต์
 ├── lib/                  # โฟลเดอร์สำหรับเก็บไลบรารีภายนอก
