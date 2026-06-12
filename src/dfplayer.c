@@ -4,10 +4,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define DFPLAYER_UART    uart0
-#define DFPLAYER_BAUD    9600
-#define DFPLAYER_TX_PIN  0  // TX → DFPlayer RX
-#define DFPLAYER_RX_PIN  1  // RX ← DFPlayer TX
+#define DFPLAYER_UART     uart0
+#define DFPLAYER_BAUD     9600
+#define DFPLAYER_TX_PIN   0  // TX → DFPlayer RX
+#define DFPLAYER_RX_PIN   1  // RX ← DFPlayer TX
+#define DFPLAYER_BUSY_PIN 2  // BUSY ← DFPlayer (LOW = playing, HIGH = idle)
 
 // Send 10-byte command frame per DFPlayer Mini protocol:
 // [0x7E][0xFF][0x06][CMD][0x00][ParamH][ParamL][ChkH][ChkL][0xEF]
@@ -34,7 +35,16 @@ void dfplayer_init(void) {
     uart_init(DFPLAYER_UART, DFPLAYER_BAUD);
     gpio_set_function(DFPLAYER_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(DFPLAYER_RX_PIN, GPIO_FUNC_UART);
+
+    gpio_init(DFPLAYER_BUSY_PIN);
+    gpio_set_dir(DFPLAYER_BUSY_PIN, GPIO_IN);
+    gpio_pull_up(DFPLAYER_BUSY_PIN); // pull-up — idle state reads HIGH
+
     vTaskDelay(pdMS_TO_TICKS(1000)); // wait for DFPlayer to finish booting
+}
+
+bool dfplayer_is_busy(void) {
+    return gpio_get(DFPLAYER_BUSY_PIN) == 0; // LOW = playing
 }
 
 // DFPlayer command map (see datasheet p.5)

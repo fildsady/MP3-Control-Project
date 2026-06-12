@@ -2,8 +2,10 @@
 #define DFPLAYER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 void dfplayer_init(void);
+bool dfplayer_is_busy(void);  // true = playing, false = idle/finished
 void dfplayer_play(uint16_t track);
 void dfplayer_stop(void);
 void dfplayer_next(void);

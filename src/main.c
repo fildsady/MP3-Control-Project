@@ -123,10 +123,20 @@ static void task_dfplayer(void *pvParameters) {
     printf("OK: DFPlayer ready, volume %d\r\n", DEFAULT_VOLUME);
 
     int current_track = 1; // track number used by repeat one
+    bool was_busy = false; // tracks previous BUSY state to detect transitions
     command_t cmd;
 
     while (1) {
-        if (xQueueReceive(cmd_queue, &cmd, portMAX_DELAY) != pdTRUE) continue;
+        // check BUSY pin every 200ms and report state changes
+        bool is_busy = dfplayer_is_busy();
+        if (is_busy && !was_busy) {
+            printf("INFO: playing\r\n");
+        } else if (!is_busy && was_busy) {
+            printf("INFO: track finished\r\n");
+        }
+        was_busy = is_busy;
+
+        if (xQueueReceive(cmd_queue, &cmd, pdMS_TO_TICKS(200)) != pdTRUE) continue;
 
         switch (cmd.type) {
             case CMD_PLAY:
