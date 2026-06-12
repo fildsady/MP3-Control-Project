@@ -5,17 +5,19 @@
             "label": "Compile Project",
             "type": "process",
             "isBuildCommand": true,
-            "command": "${userHome}/.pico-sdk/ninja/v1.12.1/ninja",
-            "args": ["-C", "${workspaceFolder}/build"],
+            "command": "${env:USERPROFILE}/.pico-sdk/cmake/v3.31.5/bin/cmake.exe",
+            "args": ["--build", "${workspaceFolder}/build"],
+            "options": {
+                "env": {
+                    "PATH": "${env:USERPROFILE}/.pico-sdk/cmake/v3.31.5/bin;${env:USERPROFILE}/.pico-sdk/ninja/v1.12.1;${env:USERPROFILE}/.pico-sdk/toolchain/15_2_Rel1/bin;${env:PATH}"
+                }
+            },
             "group": "build",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated"
             },
-            "problemMatcher": "$gcc",
-            "windows": {
-                "command": "${env:USERPROFILE}/.pico-sdk/ninja/v1.12.1/ninja.exe"
-            }
+            "problemMatcher": "$gcc"
         },
         {
             "label": "Run Project",
