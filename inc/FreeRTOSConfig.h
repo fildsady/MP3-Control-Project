@@ -87,13 +87,19 @@
 #define configTIMER_TASK_STACK_DEPTH            1024 // ขนาด stack ของ timer task = 1024 words
 
 /*-----------------------------------------------------------
- * ⚙️ การตั้งค่า Interrupt Priority (สำคัญกับ Cortex-M33)
+ * ⚙️ การตั้งค่า Interrupt Priority (สำคัญกับ Cortex-M33 / RP2350)
+ *----------------------------------------------------------
+ * RP2350 มี NVIC 3 priority bits → ค่าต้องอยู่ใน top-3 bits เท่านั้น
+ * (multiples of 0x20: 0x20, 0x40, 0x60, 0x80, 0xA0, 0xC0, 0xE0)
+ *
+ * configMAX_SYSCALL_INTERRUPT_PRIORITY = 0x80 (priority 4/7)
+ *   → ISR ที่ต้องการใช้ FromISR API ต้องอยู่ที่ priority >= 4 (0x80–0xE0)
+ *   → ISR ที่ priority < 4 (0x00–0x60) จะไม่ถูก mask — ห้ามใช้ FromISR
+ *
+ * ค่า 16 (0x10) ผิด: port.c assert ว่า (0x10 & 0xE0) == 0 → board ไม่บูต!
  *----------------------------------------------------------*/
-/*
- * บางค่า (เช่น configKERNEL_INTERRUPT_PRIORITY)
- * จะขึ้นอยู่กับโปรเซสเซอร์และต้องดูจากเอกสารของ MCU
- */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY    16  // ระดับ interrupt สูงสุดที่สามารถใช้ FreeRTOS API ได้
+#define configKERNEL_INTERRUPT_PRIORITY         0xFF  // SysTick/PendSV ต้อง lowest priority
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY    0x80  // ISR ใช้ FromISR ได้ที่ priority ≥ 0x80
 
 /*-----------------------------------------------------------
  * 🧠 การตั้งค่าสำหรับระบบ SMP (Multi-core)
