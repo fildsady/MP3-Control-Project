@@ -80,8 +80,8 @@ target_link_libraries(MP3_Control_Project
         hardware_uart
         hardware_i2c
         FreeRTOS-Kernel-Heap4
-        # Pico W WiFi + lwIP
-        pico_cyw43_arch_lwip_threadsafe_background
+        # Pico W WiFi + lwIP (FreeRTOS integrated)
+        pico_cyw43_arch_lwip_sys_freertos
         pico_lwip_http
 )
 # เชื่อมโยง (Link) Libraries ที่ Target ต้องใช้ในการคอมไพล์และรัน:

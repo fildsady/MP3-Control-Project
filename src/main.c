@@ -4,6 +4,7 @@
 #include "queue.h"
 #include "dfplayer.h"
 #include "i2c_lcd.h"
+#include "main_shared.h"
 #include "hardware/gpio.h"
 #include <stdio.h>
 #include <string.h>
@@ -21,38 +22,9 @@
 #define BTN_PLAY_PIN    22  // GP22 — toggle play/stop
 #define MAX_TRACK       99  // highest track number on SD card
 
-// command types received from Serial
-typedef enum {
-    CMD_PLAY,
-    CMD_STOP,
-    CMD_NEXT,
-    CMD_PREV,
-    CMD_VOLUME,
-    CMD_REPEAT_ALL,
-    CMD_REPEAT_ONE,
-    CMD_REPEAT_OFF,
-    CMD_UNKNOWN,
-} cmd_type_t;
+QueueHandle_t cmd_queue;  // extern-accessible by web_server.c
 
-// passed through Queue from task_uart_rx → task_dfplayer
-typedef struct {
-    cmd_type_t type;
-    int        arg;  // track number or volume depending on type
-} command_t;
-
-static QueueHandle_t cmd_queue;
-
-typedef enum { UI_TRACK, UI_VOLUME } ui_mode_t;
-
-// shared LCD state — written by task_dfplayer / task_buttons, read by task_lcd
-typedef struct {
-    int       track;
-    int       volume;
-    bool      playing;
-    ui_mode_t mode;
-} lcd_state_t;
-
-static volatile lcd_state_t lcd_state = { .track = 0, .volume = DEFAULT_VOLUME, .playing = false, .mode = UI_TRACK };
+volatile lcd_state_t lcd_state = { .track = 0, .volume = DEFAULT_VOLUME, .playing = false, .mode = UI_TRACK };
 
 // parse text command into command_t and push to Queue
 static void parse_and_enqueue(const char *line) {

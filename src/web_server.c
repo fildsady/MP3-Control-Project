@@ -102,8 +102,8 @@ void task_webserver(void *pvParameters) {
 
     printf("HTTP: server ready\r\n");
 
+    // sys_freertos handles lwIP internally — task can idle
     while (1) {
-        cyw43_arch_poll(); // ต้อง poll อยู่เสมอถ้าใช้ threadsafe_background
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
