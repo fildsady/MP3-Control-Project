@@ -4,6 +4,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include <string.h>
 
 // forward-declared from main.c — web server writes commands here
 extern QueueHandle_t        cmd_queue;
@@ -92,8 +93,12 @@ void task_webserver(void *pvParameters) {
         return;
     }
 
-    printf("WiFi: connected, IP = %s\r\n",
-           ip4addr_ntoa(netif_ip4_addr(netif_default)));
+    const char *ip_str = ip4addr_ntoa(netif_ip4_addr(netif_default));
+    printf("WiFi: connected, IP = %s\r\n", ip_str);
+
+    // update LCD state so task_lcd can show WiFi page
+    lcd_state.wifi_connected = true;
+    strncpy((char *)lcd_state.ip, ip_str, sizeof(lcd_state.ip) - 1);
 
     // start httpd with CGI + SSI
     httpd_init();

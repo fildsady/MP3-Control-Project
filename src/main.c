@@ -65,7 +65,9 @@ static void parse_and_enqueue(const char *line) {
     xQueueSend(cmd_queue, &cmd, 0);
 }
 
-// Task: update LCD every 500ms with current track, volume, and play state
+// Task: update LCD every 500ms — cycles pages every 3s
+// Page 0: Track/Vol/Status (or Vol mode)
+// Page 1: WiFi status + IP
 static void task_lcd(void *pvParameters) {
     (void)pvParameters;
     lcd_init();
@@ -74,12 +76,27 @@ static void task_lcd(void *pvParameters) {
     lcd_buff_printf(1, 0, "Ready");
     put_buff_to_lcd();
 
+    int tick = 0;          // counts 500ms ticks
+    int page = 0;          // 0=track, 1=wifi
+
     while (1) {
         lcd_clear_buff_all();
+
         if (lcd_state.mode == UI_VOLUME) {
+            // vol mode overrides page cycling
             lcd_buff_printf(0, 0, "[ Vol Mode ]");
             lcd_buff_printf(1, 0, "< Vol: %d >", lcd_state.volume);
+        } else if (page == 1) {
+            // WiFi page
+            if (lcd_state.wifi_connected) {
+                lcd_buff_printf(0, 0, "WiFi: OK");
+                lcd_buff_printf(1, 0, "%s", lcd_state.ip);
+            } else {
+                lcd_buff_printf(0, 0, "WiFi: connecting");
+                lcd_buff_printf(1, 0, "please wait...");
+            }
         } else {
+            // Track page
             if (lcd_state.track > 0)
                 lcd_buff_printf(0, 0, "Track: %d", lcd_state.track);
             else
@@ -90,8 +107,17 @@ static void task_lcd(void *pvParameters) {
             else
                 lcd_buff_printf(1, 0, "Vol:%d Stopped", lcd_state.volume);
         }
+
         put_buff_to_lcd();
         vTaskDelay(pdMS_TO_TICKS(500));
+
+        if (lcd_state.mode != UI_VOLUME) {
+            tick++;
+            if (tick >= 6) { // 6 × 500ms = 3s
+                tick = 0;
+                page = (page + 1) % 2;
+            }
+        }
     }
 }
 

@@ -15,4 +15,6 @@ typedef struct {
     int       volume;
     bool      playing;
     ui_mode_t mode;
+    bool      wifi_connected;
+    char      ip[16];  // "xxx.xxx.xxx.xxx\0"
 } lcd_state_t;
