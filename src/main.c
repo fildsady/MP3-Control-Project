@@ -14,7 +14,7 @@
 
 #define CMD_QUEUE_LEN   8   // max pending commands waiting to execute
 #define LINE_BUF_SIZE   64  // max length of one command line
-#define DEFAULT_VOLUME  25  // startup volume (0-30)
+#define DEFAULT_VOLUME  20  // startup volume (0-30)
 
 // command types received from Serial
 typedef enum {
