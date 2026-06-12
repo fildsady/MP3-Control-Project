@@ -17,34 +17,29 @@ if (EXISTS ${picoVscode})
 endif()
 
 set(PICO_BOARD pico2_w CACHE STRING "Board type")
-set(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/FreeRTOS-Kernel)
 
 include(pico_sdk_import.cmake)
-include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2350_ARM_NTZ/FreeRTOS_Kernel_import.cmake)
 
-project(WiFi_RTOS_Test C CXX ASM)
+project(CYW43_Bare_Test C CXX ASM)
 pico_sdk_init()
 
-add_executable(WiFi_RTOS_Test
-    src/main.c
-)
+add_executable(CYW43_Bare_Test src/main.c)
 
-pico_set_program_name(WiFi_RTOS_Test "WiFi_RTOS_Test")
-pico_set_program_version(WiFi_RTOS_Test "0.1")
+pico_set_program_name(CYW43_Bare_Test "CYW43_Bare_Test")
+pico_set_program_version(CYW43_Bare_Test "0.1")
 
-pico_enable_stdio_uart(WiFi_RTOS_Test 0)
-pico_enable_stdio_usb(WiFi_RTOS_Test 1)
+pico_enable_stdio_uart(CYW43_Bare_Test 0)
+pico_enable_stdio_usb(CYW43_Bare_Test 1)
 
-target_link_libraries(WiFi_RTOS_Test
+target_link_libraries(CYW43_Bare_Test
     pico_stdlib
-    FreeRTOS-Kernel-Heap4
-    pico_cyw43_arch_lwip_sys_freertos
+    pico_cyw43_arch_lwip_poll   # lwIP polling mode — no FreeRTOS needed
 )
 
-target_include_directories(WiFi_RTOS_Test PRIVATE
+target_include_directories(CYW43_Bare_Test PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,--print-memory-usage)
-pico_add_extra_outputs(WiFi_RTOS_Test)
+pico_add_extra_outputs(CYW43_Bare_Test)
