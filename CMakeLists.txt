@@ -54,9 +54,9 @@ pico_sdk_init()
 # เรียกใช้ฟังก์ชันจาก Pico SDK เพื่อเริ่มต้นการตั้งค่าสภาพแวดล้อมที่จำเป็นทั้งหมด
 
 # Add executable. Default name is the project name, version 0.1
-add_executable(MP3_Control_Project 
-    src/main.c 
-    # src/lcd.c  <-- ลบ # ออก แล้วเปลี่ยนชื่อไฟล์ให้ตรงกับไฟล์ไลบรารี LCD ของคุณครับ!
+add_executable(MP3_Control_Project
+    src/main.c
+    src/dfplayer.c
 )
 # สร้าง Target ที่เป็นไฟล์ปฏิบัติการ (Executable) ชื่อเดียวกับชื่อโปรเจกต์
 # โดยใช้ไฟล์ต้นฉบับคือ main.c ในการคอมไพล์
@@ -75,8 +75,9 @@ pico_enable_stdio_usb(MP3_Control_Project 1)
 # Add the standard library to the build
 target_link_libraries(MP3_Control_Project
         pico_stdlib
+        hardware_uart
         FreeRTOS-Kernel-Heap4
- )
+)
 # เชื่อมโยง (Link) Libraries ที่ Target ต้องใช้ในการคอมไพล์และรัน:
 # - pico_stdlib: Libraries พื้นฐานของ Pico
 # - pico_multicore: Libraries สำหรับใช้งาน Multi-core
