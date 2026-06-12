@@ -124,15 +124,18 @@ static void task_dfplayer(void *pvParameters) {
 
     int current_track = 1; // track number used by repeat one
     bool was_busy = false; // tracks previous BUSY state to detect transitions
+    bool repeat_active = false; // suppress BUSY noise while DFPlayer loops internally
     command_t cmd;
 
     while (1) {
-        // check BUSY pin every 200ms and report state changes
+        // check BUSY pin every 200ms — skip reporting when repeat is active
+        // (DFPlayer briefly pulses BUSY HIGH between loops, which would spam Serial)
         bool is_busy = dfplayer_is_busy();
-        if (is_busy && !was_busy) {
-            printf("INFO: playing\r\n");
-        } else if (!is_busy && was_busy) {
-            printf("INFO: track finished\r\n");
+        if (!repeat_active) {
+            if (is_busy && !was_busy)
+                printf("INFO: playing\r\n");
+            else if (!is_busy && was_busy)
+                printf("INFO: track finished\r\n");
         }
         was_busy = is_busy;
 
@@ -161,14 +164,17 @@ static void task_dfplayer(void *pvParameters) {
                 printf("OK: volume set to %d\r\n", cmd.arg);
                 break;
             case CMD_REPEAT_ALL:
+                repeat_active = true;
                 dfplayer_repeat_all();
                 printf("OK: repeat all\r\n");
                 break;
             case CMD_REPEAT_ONE:
+                repeat_active = true;
                 dfplayer_repeat_one((uint16_t)current_track);
                 printf("OK: repeat track %d\r\n", current_track);
                 break;
             case CMD_REPEAT_OFF:
+                repeat_active = false;
                 dfplayer_repeat_off();
                 printf("OK: repeat off\r\n");
                 break;
