@@ -1,13 +1,12 @@
 #pragma once
 
-// lwIP options for Pico W httpd + CGI + SSI
-// ref: pico-sdk/lib/lwip and pico-examples/pico_w/wifi/http_server
-
+// lwIP options for Pico W httpd + CGI + SSI (FreeRTOS sys_freertos mode)
 #define NO_SYS                          0
 #define LWIP_SOCKET                     0
+#define LWIP_NETCONN                    0
 #define MEM_LIBC_MALLOC                 0
 #define MEM_ALIGNMENT                   4
-#define MEM_SIZE                        8000  // เพิ่มจาก 4000 — CYW43 ต้องการ buffer มากขึ้น
+#define MEM_SIZE                        8000
 #define MEMP_NUM_TCP_SEG                32
 #define PBUF_POOL_SIZE                  24
 #define LWIP_ARP                        1
@@ -21,7 +20,6 @@
 #define LWIP_NETIF_STATUS_CALLBACK      1
 #define LWIP_NETIF_LINK_CALLBACK        1
 #define LWIP_NETIF_HOSTNAME             1
-#define LWIP_NETCONN                    0
 #define MEM_STATS                       0
 #define SYS_STATS                       0
 #define MEMP_STATS                      0
@@ -43,9 +41,14 @@
 #define LWIP_HTTPD_SSI_INCLUDE_TAG      0
 #define HTTPD_USE_CUSTOM_FSDATA         0
 
-// FreeRTOS sys_arch — required by pico_cyw43_arch_lwip_sys_freertos
+// Required for NO_SYS=0 (FreeRTOS) mode — all default to 0 which panics in sys_arch
 #define LWIP_FREERTOS_SYS_ARCH_TIMEOUT_USES_TICKS 1
-#define TCPIP_THREAD_STACKSIZE          2048  // stack for lwIP tcpip_thread (words)
-#define TCPIP_THREAD_PRIO               8     // higher than app tasks (1-2)
+#define TCPIP_MBOX_SIZE                 16
+#define TCPIP_THREAD_STACKSIZE          512
+#define TCPIP_THREAD_PRIO               5
+#define DEFAULT_TCP_RECVMBOX_SIZE       8
+#define DEFAULT_UDP_RECVMBOX_SIZE       8
+#define DEFAULT_RAW_RECVMBOX_SIZE       8
+#define DEFAULT_ACCEPTMBOX_SIZE         8
 #define DEFAULT_THREAD_STACKSIZE        256
 #define DEFAULT_THREAD_PRIO             1
