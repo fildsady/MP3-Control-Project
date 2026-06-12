@@ -126,10 +126,17 @@ static void task_lcd(void *pvParameters) {
 // Must wait for cyw43_arch_init() in task_webserver before using CYW43 GPIO API
 static void task_status_led(void *pvParameters) {
     (void)pvParameters;
+    printf("STATUS_LED: task started\r\n");
 
     // wait until task_webserver has called cyw43_arch_init()
-    while (!cyw43_ready)
+    int wait_count = 0;
+    while (!cyw43_ready) {
         vTaskDelay(pdMS_TO_TICKS(100));
+        wait_count++;
+        if (wait_count % 10 == 0)
+            printf("STATUS_LED: waiting for CYW43 init... %ds\r\n", wait_count / 10);
+    }
+    printf("STATUS_LED: CYW43 ready, starting blink\r\n");
 
     while (1) {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
@@ -352,6 +359,7 @@ static void task_buttons(void *pvParameters) {
 
 int main(void) {
     stdio_init_all();
+    printf("BOOT: main() started\r\n");
 
     cmd_queue = xQueueCreate(CMD_QUEUE_LEN, sizeof(command_t));
 
@@ -363,6 +371,8 @@ int main(void) {
     xTaskCreate(task_buttons,    "Buttons",   256,  NULL, 1, NULL);
     xTaskCreate(task_webserver,  "WebServer", 2048, NULL, 3, NULL); // large stack — cyw43_arch_init needs it
 
+    printf("BOOT: starting scheduler\r\n");
     vTaskStartScheduler(); // start FreeRTOS — should never return
+    printf("BOOT: scheduler returned! heap exhausted?\r\n");
     while (1) {}
 }
