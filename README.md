@@ -12,36 +12,36 @@
 ## System Architecture
 
 ```mermaid
-graph TB
-    BR(["🌐 Browser\nAJAX 300 ms"])
+flowchart TB
+    BR(["Browser\nAJAX 300 ms"])
 
-    subgraph C1["📡 Core 1 — CYW43 poll loop"]
-        HTTPD["lwIP httpd\nCGI: รับคำสั่ง → FIFO\nSSI: อ่าน lcd_state → JSON"]
+    subgraph C1["Core 1 — CYW43 poll loop"]
+        HTTPD["lwIP httpd\nCGI: push cmd to FIFO\nSSI: read lcd_state as JSON"]
     end
 
-    FIFO["⇅ HW FIFO  8 entries\ncmd_type &lt;&lt; 16 | arg"]
+    FIFO["HW FIFO  8 entries\ncmd_type << 16 | arg"]
 
-    subgraph C0["⚙️ Core 0 — bare-metal loop"]
-        CMDQ["ring buffer  command_t × 8"]
-        DRV["dfplayer_run · lcd_update"]
+    subgraph C0["Core 0 — bare-metal loop"]
+        CMDQ["ring buffer  command_t x8"]
+        DRV["dfplayer_run\nlcd_update"]
         STATE[("lcd_state\nvolatile")]
     end
 
-    DFP(["🎵 DFPlayer Mini\nUART0  GP0 / GP1"])
-    LCD(["🖥️ LCD 16×2\nI2C1  GP2 / GP3"])
-    BTNS(["🎛️ Buttons\nGP20 / 21 / 22"])
-    SER(["💻 USB Serial\nCDC"])
+    DFP(["DFPlayer Mini\nUART0  GP0/GP1"])
+    LCD(["LCD 16x2\nI2C1  GP2/GP3"])
+    BTNS(["Buttons\nGP20/21/22"])
+    SER(["USB Serial CDC"])
 
-    BR      <-->|HTTP|          HTTPD
-    HTTPD   -->|CGI push|       FIFO
-    HTTPD   -. "SSI read" .->  STATE
-    FIFO    -->|fifo_poll|      CMDQ
-    BTNS    -->                 CMDQ
-    SER     -->                 CMDQ
-    CMDQ    -->                 DRV
-    DRV     -->                 STATE
-    DRV     -->|UART frames|    DFP
-    DRV     -->|I2C|            LCD
+    BR    <-->|HTTP|      HTTPD
+    HTTPD -->|CGI|        FIFO
+    HTTPD -. SSI .->      STATE
+    FIFO  -->|fifo_poll|  CMDQ
+    BTNS  -->             CMDQ
+    SER   -->             CMDQ
+    CMDQ  -->             DRV
+    DRV   -->             STATE
+    DRV   -->|UART|       DFP
+    DRV   -->|I2C|        LCD
 ```
 
 ---
