@@ -31,19 +31,8 @@ set(PICO_BOARD pico2_w CACHE STRING "Board type")
 # กำหนดบอร์ดที่ใช้เป็น 'pico2' (หากคุณใช้ Pico W หรือบอร์ดอื่น ควรปรับแก้ที่นี่)
 # CACHE STRING คือการบันทึกค่าไว้ใน CMake cache เพื่อใช้งานซ้ำ
 
-# ระบุพาธ FreeRTOS Kernel
-set(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/FreeRTOS-Kernel)
-# กำหนดตัวแปรเพื่อเก็บพาธไปยังโฟลเดอร์ FreeRTOS Kernel
-# ต้องแน่ใจว่าโฟลเดอร์ FreeRTOS-Kernel อยู่ในไดเรกทอรี 'lib'
-
 # นำเข้า Pico SDK
 include(pico_sdk_import.cmake)
-# นำเข้าไฟล์ที่จำเป็นในการตั้งค่า Pico SDK (ซึ่งโดยปกติจะอยู่ในพาธที่ตั้งค่าไว้ในระบบ)
-
-# นำเข้า FreeRTOS CMake scripts (ของ SMP branch)
-include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2350_ARM_NTZ/FreeRTOS_Kernel_import.cmake)
-# นำเข้าสคริปต์ CMake ที่มาพร้อมกับ FreeRTOS Kernel สำหรับสถาปัตยกรรม RP2350 (ซึ่งอาจหมายถึง RP2040 หรือรุ่นใหม่กว่า)
-# ไฟล์นี้จะกำหนด Target และ Libraries ที่จำเป็นสำหรับ FreeRTOS
 
 project(MP3_Control_Project C CXX ASM)
 # กำหนดชื่อโปรเจกต์เป็น MP3_Control_Project
@@ -79,9 +68,9 @@ target_link_libraries(MP3_Control_Project
         pico_stdlib
         hardware_uart
         hardware_i2c
-        FreeRTOS-Kernel-Heap4
-        # Pico W WiFi + lwIP (FreeRTOS integrated)
-        pico_cyw43_arch_lwip_sys_freertos
+        pico_multicore
+        # Pico W WiFi + lwIP (bare-metal poll mode — Core 1 owns CYW43)
+        pico_cyw43_arch_lwip_poll
         pico_lwip_http
 )
 # เชื่อมโยง (Link) Libraries ที่ Target ต้องใช้ในการคอมไพล์และรัน:

@@ -100,6 +100,8 @@ void lcd_init(void) {
     i2c_init(I2C_MODULE, 125 * 1000);
     gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(SDA_PIN);
+    gpio_pull_up(SCL_PIN);
     bi_decl(bi_2pins_with_func(SDA_PIN, SCL_PIN, GPIO_FUNC_I2C));
 
     lcd_send_byte(0x03, LCD_COMMAND);

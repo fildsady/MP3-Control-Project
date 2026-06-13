@@ -1,8 +1,7 @@
 #include "dfplayer.h"
 #include "hardware/uart.h"
 #include "hardware/gpio.h"
-#include "FreeRTOS.h"
-#include "task.h"
+#include "pico/stdlib.h"
 
 #define DFPLAYER_UART     uart0
 #define DFPLAYER_BAUD     9600
@@ -28,7 +27,7 @@ static void send_cmd(uint8_t cmd, uint16_t param) {
     };
 
     uart_write_blocking(DFPLAYER_UART, frame, sizeof(frame));
-    vTaskDelay(pdMS_TO_TICKS(30)); // DFPlayer needs time to process between commands
+    sleep_ms(30); // DFPlayer needs time to process between commands
 }
 
 void dfplayer_init(void) {
@@ -40,7 +39,7 @@ void dfplayer_init(void) {
     gpio_set_dir(DFPLAYER_BUSY_PIN, GPIO_IN);
     gpio_pull_up(DFPLAYER_BUSY_PIN); // pull-up — idle state reads HIGH
 
-    vTaskDelay(pdMS_TO_TICKS(1000)); // wait for DFPlayer to finish booting
+    sleep_ms(1000); // wait for DFPlayer to finish booting
 }
 
 bool dfplayer_is_busy(void) {
@@ -48,8 +47,10 @@ bool dfplayer_is_busy(void) {
 }
 
 // DFPlayer command map (see datasheet p.5)
-void dfplayer_play(uint16_t track)       { send_cmd(0x03, track); }  // play specified track
+void dfplayer_play(uint16_t track)       { send_cmd(0x03, track); }
 void dfplayer_stop(void)                 { send_cmd(0x16, 0); }
+void dfplayer_pause(void)                { send_cmd(0x0E, 0); }
+void dfplayer_resume(void)               { send_cmd(0x0D, 0); }
 void dfplayer_next(void)                 { send_cmd(0x01, 0); }
 void dfplayer_prev(void)                 { send_cmd(0x02, 0); }
 void dfplayer_volume(uint8_t vol)        { send_cmd(0x06, vol); }     // 0–30

@@ -1,53 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MP3 Controller</title>
-  <style>
-    body { font-family: sans-serif; max-width: 400px; margin: 40px auto; text-align: center; }
-    .status { background: #f0f0f0; padding: 16px; border-radius: 8px; margin: 16px 0; font-size: 1.2em; }
-    .btn-row { display: flex; gap: 8px; justify-content: center; margin: 8px 0; }
-    a.btn { display: inline-block; padding: 10px 20px; background: #333; color: #fff;
-            border-radius: 6px; text-decoration: none; }
-    a.btn:hover { background: #555; }
-    input[type=number] { width: 60px; padding: 8px; font-size: 1em; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MP3 Controller</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111;color:#eee;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+h1{font-size:1.3rem;font-weight:600;letter-spacing:.05em;color:#fff;margin-bottom:20px}
+.card{background:#1e1e1e;border-radius:16px;padding:20px;width:100%;max-width:360px;box-shadow:0 8px 32px #0008}
+.status{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px}
+.stat{background:#2a2a2a;border-radius:10px;padding:10px 6px;text-align:center}
+.stat .label{font-size:.65rem;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat .val{font-size:1.1rem;font-weight:700;color:#fff}
+.playing{color:#4ade80}.stopped{color:#f87171}.paused{color:#fbbf24}
+.transport{display:flex;gap:8px;margin-bottom:16px}
+.transport button{flex:1;height:52px;border:none;border-radius:12px;background:#2a2a2a;color:#fff;font-size:1.4rem;cursor:pointer;transition:background .15s}
+.transport button:active{background:#444}
+.transport button.play-btn{background:#4ade80;color:#111;font-size:1.5rem}
+.transport button.play-btn:active{background:#86efac}
+.row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.row input[type=number]{flex:1;background:#2a2a2a;border:none;border-radius:10px;color:#fff;font-size:1rem;padding:12px 14px;outline:none;-moz-appearance:textfield}
+.row input[type=number]::-webkit-inner-spin-button{opacity:.5}
+.row button.action{background:#4f46e5;border:none;border-radius:10px;color:#fff;font-size:.9rem;font-weight:600;padding:12px 16px;cursor:pointer}
+.row button.action:active{background:#6366f1}
+.vol-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.vol-row span{font-size:.75rem;color:#888;white-space:nowrap;min-width:20px}
+input[type=range]{flex:1;accent-color:#4f46e5;height:4px}
+.repeat{display:flex;gap:6px}
+.repeat button{flex:1;padding:9px 4px;border:none;border-radius:10px;background:#2a2a2a;color:#aaa;font-size:.75rem;font-weight:600;cursor:pointer;letter-spacing:.03em}
+.repeat button:active{background:#444;color:#fff}
+.repeat button.active{background:#4f46e5;color:#fff}
+.dot{width:6px;height:6px;border-radius:50%;background:#555;display:inline-block;margin-left:6px;transition:background .3s}
+.dot.on{background:#4ade80}
+</style>
 </head>
 <body>
-  <h2>MP3 Controller</h2>
+<h1>&#127925; MP3 Controller <span class="dot" id="dot"></span></h1>
+<div class="card">
 
   <div class="status">
-    Track: <!--#track--><br>
-    Volume: <!--#vol--><br>
-    Status: <!--#status-->
+    <div class="stat"><div class="label">Track</div><div class="val" id="trk">--</div></div>
+    <div class="stat"><div class="label">Volume</div><div class="val" id="vol">--</div></div>
+    <div class="stat"><div class="label">Status</div><div class="val" id="sts">--</div></div>
   </div>
 
-  <div class="btn-row">
-    <a class="btn" href="/control?cmd=prev">&#9664;&#9664; Prev</a>
-    <a class="btn" href="/control?cmd=stop">&#9646;&#9646; Stop</a>
-    <a class="btn" href="/control?cmd=next">Next &#9654;&#9654;</a>
+  <div class="transport">
+    <button onclick="cmd('prev')" title="Prev">&#9664;&#9664;</button>
+    <button onclick="cmd('stop')" title="Stop">&#9209;</button>
+    <button id="playPauseBtn" class="play-btn" onclick="playPause()" title="Play">&#9654;</button>
+    <button onclick="cmd('next')" title="Next">&#9654;&#9654;</button>
   </div>
 
-  <form action="/control" method="get">
-    <input type="hidden" name="cmd" value="play">
-    Track: <input type="number" name="track" min="1" max="99" value="1">
-    <input type="submit" value="Play">
-  </form>
-
-  <form action="/control" method="get" style="margin-top:12px">
-    <input type="hidden" name="cmd" value="vol">
-    Volume: <input type="number" name="val" min="0" max="30" value="20">
-    <input type="submit" value="Set">
-  </form>
-
-  <div class="btn-row" style="margin-top:16px">
-    <a class="btn" href="/control?cmd=repeat_all">Repeat All</a>
-    <a class="btn" href="/control?cmd=repeat_one">Repeat One</a>
-    <a class="btn" href="/control?cmd=repeat_off">Repeat Off</a>
+  <div class="row">
+    <input type="number" id="trkInput" min="1" max="99" value="1" placeholder="Track">
+    <button class="action" onclick="playTrack()">Play</button>
   </div>
 
-  <p><small>auto-refresh every 2s</small></p>
-  <script>setTimeout(() => location.reload(), 2000);</script>
+  <div class="vol-row">
+    <span>Vol</span>
+    <input type="range" id="volSlider" min="0" max="30" value="20" oninput="document.getElementById('volNum').textContent=this.value">
+    <span id="volNum">20</span>
+  </div>
+
+  <div class="repeat">
+    <button id="repAll" onclick="cmd('repeat_all')">&#8635; All</button>
+    <button id="repOne" onclick="cmd('repeat_one')">&#8635; One</button>
+    <button id="repOff" onclick="cmd('repeat_off')">&#8856; Off</button>
+  </div>
+
+</div>
+<script>
+var slider=document.getElementById('volSlider'),volTimer=null;
+slider.oninput=function(){
+  document.getElementById('volNum').textContent=this.value;
+  clearTimeout(volTimer);
+  volTimer=setTimeout(function(){cmd('vol',slider.value);},400);
+};
+
+function cmd(c,val){
+  var url='/control?cmd='+c+(val!==undefined?'&val='+val:'');
+  fetch(url).catch(function(){});
+}
+function playPause(){
+  var s=document.getElementById('sts').textContent;
+  if(s==='Playing'){
+    cmd('pause');
+  } else if(s==='Paused'){
+    cmd('resume');
+  } else {
+    var t=document.getElementById('trk').textContent;
+    if(!t||t=='--')t=document.getElementById('trkInput').value||1;
+    fetch('/control?cmd=play&track='+t).catch(function(){});
+  }
+}
+function playTrack(){
+  var t=document.getElementById('trkInput').value||1;
+  fetch('/control?cmd=play&track='+t).catch(function(){});
+}
+function setVol(){
+  cmd('vol',slider.value);
+}
+var dot=document.getElementById('dot'),on=false;
+function update(){
+  fetch('/status.shtml').then(function(r){return r.text();}).then(function(t){
+    t=t.trim();
+    var m=t.match(/\{\"track\":(\d+),\"vol\":(\d+),\"status\":\"(\w+)\",\"repeat\":\"(\w+)\"\}/);
+    if(!m)return;
+    document.getElementById('trk').textContent=m[1];
+    document.getElementById('vol').textContent=m[2];
+    var s=document.getElementById('sts');
+    s.textContent=m[3];
+    s.className='val '+(m[3]==='Playing'?'playing':m[3]==='Paused'?'paused':'stopped');
+    var pb=document.getElementById('playPauseBtn');
+    pb.innerHTML=m[3]==='Playing'?'&#9208;':'&#9654;';
+    pb.title=m[3]==='Playing'?'Pause':'Play';
+    var rep=m[4];
+    document.getElementById('repAll').className='rep'+(rep==='All'?' active':'');
+    document.getElementById('repOne').className='rep'+(rep==='One'?' active':'');
+    document.getElementById('repOff').className='rep'+(rep==='Off'?' active':'');
+    on=!on;dot.className='dot'+(on?' on':'');
+  }).catch(function(){});
+  setTimeout(update,300);
+}
+update();
+</script>
 </body>
 </html>

@@ -1,8 +1,9 @@
 #pragma once
-#include "main_shared.h" // lcd_state_t, cmd_type_t, command_t
+#include "main_shared.h"
 
 // WiFi credentials (test only — do not commit to public repo)
 #define WIFI_SSID  "IOT_503"
 #define WIFI_PASS  "0811399455"
 
-void task_webserver(void *pvParameters);
+// Entry point for Core 1 — call via multicore_launch_core1(core1_wifi_entry)
+void core1_wifi_entry(void);
